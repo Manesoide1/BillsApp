@@ -1,4 +1,4 @@
-# apk_auth
+# bills_app
 
 A new Flutter project.
 

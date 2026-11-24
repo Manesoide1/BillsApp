@@ -21,7 +21,9 @@ class MyButton extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF6C63FF), Color(0xFF4A90FF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF2DD4BF), Color(0xFF0D9488)],
             ),
             borderRadius: BorderRadius.circular(14),
           ),

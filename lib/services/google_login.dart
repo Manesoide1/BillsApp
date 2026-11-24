@@ -31,7 +31,7 @@ Future<void> signInWithGoogle(BuildContext context) async {
     // 4. Passa o idToken obtido no resultado da autenticação para o Firebase
     final credential = GoogleAuthProvider.credential(
       accessToken: tokens?.accessToken,
-      idToken: result.idToken, // <--- Aqui estava o detalhe que gerava a credencial inválida
+      idToken: result.idToken,
     );
 
     // 5. Autentica no Firebase

@@ -9,7 +9,8 @@ class MyBill extends StatelessWidget {
     required this.dueDate,
     required this.isPaid,
     required this.onChanged,
-    required this.onDelete, // <-- Novo parâmetro para lidar com a exclusão
+    this.onTap, // <-- Adicionado ao construtor
+    required this.onDelete,
   });
 
   final String name;
@@ -18,6 +19,7 @@ class MyBill extends StatelessWidget {
   final DateTime dueDate;
   final bool isPaid;
   final ValueChanged<bool?> onChanged;
+  final VoidCallback? onTap; // <-- Função chamada ao editar a conta
   final VoidCallback onDelete; // <-- Função chamada ao confirmar a exclusão
 
   @override
@@ -50,7 +52,7 @@ class MyBill extends StatelessWidget {
     }
 
     // Função que exibe a janela de confirmação antes de apagar
-    void _confirmarExclusao() {
+    void confirmarExclusao() {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -76,135 +78,143 @@ class MyBill extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          border: Border.all(color: const Color(0xFF0D9488), width: 2),
+      child: Material(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap, // Abre a edição ao tocar no card (fora dos botões)
           borderRadius: BorderRadius.circular(12),
-        ),
-        child: Stack(
-          children: [
-            // Conteúdo principal da conta
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFF0D9488), width: 2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Stack(
               children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                // Conteúdo principal da conta
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (description != null && description!.isNotEmpty)
+                      Text(
+                        description!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF0D9488),
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Valor: R\$ ${value.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Vencimento: ${dueDate.day}/${dueDate.month}/${dueDate.year}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: !isPaid ? corStatus : Colors.grey,
+                        fontWeight: estaAtrasada ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    // Espaço extra embaixo para os botões não sobreporem o texto
+                    const SizedBox(height: 35),
+                  ],
                 ),
-                if (description != null && description!.isNotEmpty)
-                  Text(
-                    description!,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF0D9488),
+
+                // Botão de Excluir no canto inferior esquerdo (Lixeira vermelha)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  child: GestureDetector(
+                    onTap: confirmarExclusao, // Abre a caixa de diálogo de confirmação
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.15),
+                        border: Border.all(
+                          color: Colors.red,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                            size: 16,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'Apagar',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                const SizedBox(height: 10),
-                Text(
-                  'Valor: R\$ ${value.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                ),
+
+                // Botão de Status no canto inferior direito dinâmico (Amarelo, Vermelho ou Verde)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: () => onChanged(!isPaid), // Alterna o estado ao tocar
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: corStatus.withOpacity(0.2),
+                        border: Border.all(
+                          color: corStatus,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            iconeStatus,
+                            color: corStatus,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            textoStatus,
+                            style: TextStyle(
+                              color: corStatus,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  'Vencimento: ${dueDate.day}/${dueDate.month}/${dueDate.year}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: !isPaid ? corStatus : Colors.grey,
-                    fontWeight: estaAtrasada ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-                // Espaço extra embaixo para os botões não sobreporem o texto
-                const SizedBox(height: 35), 
               ],
             ),
-            
-            // Botão de Excluir no canto inferior esquerdo (Lixeira vermelha)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              child: GestureDetector(
-                onTap: _confirmarExclusao, // Abre a caixa de diálogo de confirmação
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.15),
-                    border: Border.all(
-                      color: Colors.red,
-                      width: 1.5,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
-                        size: 16,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Apagar',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Botão de Status no canto inferior direito dinâmico (Amarelo, Vermelho ou Verde)
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: GestureDetector(
-                onTap: () => onChanged(!isPaid), // Alterna o estado ao tocar
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: corStatus.withOpacity(0.2),
-                    border: Border.all(
-                      color: corStatus,
-                      width: 1.5,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        iconeStatus,
-                        color: corStatus,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        textoStatus,
-                        style: TextStyle(
-                          color: corStatus,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-import 'package:apk_auth/services/google_login.dart';
+import 'package:bills_app/services/google_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -70,13 +70,12 @@ class _LoginPageState extends State<LoginPage> {
 
       // Fecha o diálogo de loading PRIMEIRO, antes que o AuthState mude a tela
       Navigator.pop(context);
-
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      
+
       // Fecha o diálogo de loading em caso de erro também
       Navigator.pop(context);
-      
+
       showAlert(switch (e.code) {
         'invalid-email' => 'Email inválido.',
         'invalid-credential' => 'Email ou senha incorretos.',
@@ -131,7 +130,9 @@ class _LoginPageState extends State<LoginPage> {
                       SocialButton(
                         icon: Icons.g_mobiledata,
                         label: 'Google',
-                        onTap: () {signInWithGoogle(context);},
+                        onTap: () {
+                          signInWithGoogle(context);
+                        },
                       ),
                       const SizedBox(width: 12),
                       SocialButton(
