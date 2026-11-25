@@ -91,6 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 hintText: 'Nome Completo',
                 icon: Icons.person_outline,
               ),
+              const SizedBox(height: 15),
               MyTextField(
                 controller: emailController,
                 hintText: 'Email',
